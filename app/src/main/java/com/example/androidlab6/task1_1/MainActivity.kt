@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity() {
     private var thread = Thread {
         while (!Thread.currentThread().isInterrupted) {
             try {
+                Log.i("THREAD", "Work")
                 Thread.sleep(1000)
                 textSecondsElapsed.post {
                     textSecondsElapsed.text = getString(R.string.text, secondsElapsed++)

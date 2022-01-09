@@ -6,12 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.example.androidlab6.R
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class KotlinCoroutines : AppCompatActivity() {
     private var secondsElapsed: Int = 0
@@ -24,18 +21,16 @@ class KotlinCoroutines : AppCompatActivity() {
         textSecondsElapsed = findViewById(R.id.textSecondsElapsed)
         sharedPref = getSharedPreferences("Seconds elapsed", Context.MODE_PRIVATE)
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                Log.i("THREAD", "Start thread")
-                while (true) {
-                    try {
-                        delay(1000)
-                        textSecondsElapsed.post {
-                            textSecondsElapsed.text = getString(R.string.text, secondsElapsed++)
-                        }
-                    } catch (e: InterruptedException) {
-                        Thread.currentThread().interrupt()
+        lifecycleScope.launchWhenResumed {
+            Log.i("THREAD", "Start thread")
+            while (true) {
+                try {
+                    delay(1000)
+                    textSecondsElapsed.post {
+                        textSecondsElapsed.text = getString(R.string.text, secondsElapsed++)
                     }
+                } catch (e: InterruptedException) {
+                    Thread.currentThread().interrupt()
                 }
             }
         }

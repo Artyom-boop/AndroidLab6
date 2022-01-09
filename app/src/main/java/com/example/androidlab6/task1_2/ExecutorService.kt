@@ -7,14 +7,13 @@ import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.androidlab6.R
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 class ExecutorService : AppCompatActivity() {
     private var secondsElapsed: Int = 0
     private lateinit var textSecondsElapsed: TextView
     private lateinit var sharedPref: SharedPreferences
-    var executorService: ExecutorService = Executors.newSingleThreadExecutor()
+    private lateinit var futureBack: Future<*>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,8 +26,8 @@ class ExecutorService : AppCompatActivity() {
     override fun onStart() {
         secondsElapsed = sharedPref.getInt("Seconds elapsed", secondsElapsed)
         Log.i("THREAD", "Start thread")
-        executorService.submit {
-            while (!executorService.isShutdown) {
+        futureBack = MyExecutor.executor.submit {
+            while (!futureBack.isCancelled) {
                 Thread.sleep(1000)
                 textSecondsElapsed.post {
                     textSecondsElapsed.text = getString(R.string.text, secondsElapsed++)
@@ -41,7 +40,7 @@ class ExecutorService : AppCompatActivity() {
     override fun onStop() {
         Log.i("THREAD", "Stop thread")
         Log.i("THREAD", "Number thread: " + Thread.getAllStackTraces().size)
-        executorService.shutdown()
+        futureBack.cancel(true)
         with(sharedPref.edit()) {
             putInt("Seconds elapsed", secondsElapsed)
             apply()
